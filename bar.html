@@ -3,7 +3,10 @@
 <style> /* set the CSS */
 
 .bar { fill: steelblue; }
-
+.bar2 { fill: rgba(98, 185, 102, 0.5);; }
+.axisSteelBlue text{
+fill: steelblue;
+}
 </style>
 <body>
 	
@@ -12,7 +15,7 @@
 <script>
 
 // set the dimensions and margins of the graph
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
+var margin = {top: 20, right: 20, bottom: 60, left: 60},
     width = 2001 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -32,14 +35,30 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
-
+// convert strings to numbers in CSV
+// function convertNumbers(row) {
+//   var r = {};
+//   for (var k in row) {
+//     r[k] = +row[k];
+//     if (isNaN(r[k])) {
+//       r[k] = row[k];
+//     }
+//   }
+//   console.log("testing the r " + k);
+//   return r;
+// }
 // get the data
 d3.csv("data/nameranking.csv", function(error, data) {
   if (error) throw "You got an error bro or sis";
-//error{console.log("you got an error bro");}
+  
   // format the data
   data.forEach(function(d) {
+
+d.sales=parseInt(d.sales,10);
     d.sales = +d.sales;
+    //d.sales = parseInt(d.sales);
+    d.totalnumber = +d.totalnumber;
+
   });
 
   // Scale the range of the data in the domains
@@ -56,10 +75,30 @@ d3.csv("data/nameranking.csv", function(error, data) {
       .attr("y", function(d) { return y(d.sales); })
       .attr("height", function(d) { return height - y(d.sales); });
 
+//second bar
+svg.selectAll(".bar2")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar2")
+      .attr("x", function(d) { return x(d.salesperson); })
+      .attr("width", x.bandwidth())
+      .attr("y", function(d) { return y(d.totalnumber); })
+      .attr("height", function(d) { return height - y(d.totalnumber); });
+
+
   // add the x Axis
   svg.append("g")
+      .attr("class", "axisSteelBlue")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x))
+      //text angle
+      .selectAll("text")
+      .style("text-anchor", "end")
+      
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-65)")
+      
 
   // add the y Axis
   svg.append("g")
