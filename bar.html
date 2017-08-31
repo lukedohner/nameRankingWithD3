@@ -57,6 +57,7 @@ d3.csv("data/nameranking.csv", function(error, data) {
 
 d.sales=parseInt(d.sales,10);
     d.sales = +d.sales;
+    d.sales2 = +d.sales2;
     //d.sales = parseInt(d.sales);
     d.totalnumber = +d.totalnumber;
 
@@ -83,8 +84,8 @@ svg.selectAll(".bar2")
       .attr("class", "bar2")
       .attr("x", function(d) { return x(d.salesperson); })
       .attr("width", x.bandwidth())
-      .attr("y", function(d) { return y(d.totalnumber); })
-      .attr("height", function(d) { return height - y(d.totalnumber); });
+      .attr("y", function(d) { return y(d.sales2); })
+      .attr("height", function(d) { return height - y(d.sales2); });
 
 
   // add the x Axis
