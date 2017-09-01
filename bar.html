@@ -4,9 +4,13 @@
 <style> /* set the CSS */
 
 .bar { fill: steelblue; }
-.bar2 { fill: rgba(98, 185, 102, 0.5);; }
+.bar2 { fill: rgba(98, 185, 102, 0.5); }
 .axisSteelBlue text{
 fill: steelblue;
+}
+.axisSteelGreen text{
+fill: rgba(98, 185, 102, 0.5);
+font-weight: 700;
 }
 </style>
 <body>
@@ -17,13 +21,16 @@ fill: steelblue;
 
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 20, bottom: 60, left: 60},
-    width = 2001 - margin.left - margin.right,
+    width = 2000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 // set the ranges
 var x = d3.scaleBand()
           .range([0, width])
-          .padding(0.1); //0.1, or 1/10th of the width of the space available for each band.
+          .padding(0.5); //0.1, or 1/10th of the width of the space available for each band.
+var xwoman = d3.scaleBand()
+          .range([0, width])
+          .padding(0.5); //0.1, or 1/10th of the width of the space available for each band.
 var y = d3.scaleLinear()
           .range([height, 0]);
           
@@ -33,7 +40,7 @@ var y = d3.scaleLinear()
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .append("g")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 // convert strings to numbers in CSV
@@ -58,13 +65,18 @@ d3.csv("data/nameranking.csv", function(error, data) {
 d.sales=parseInt(d.sales,10);
     d.sales = +d.sales;
     d.sales2 = +d.sales2;
+    //d.woman = +d.woman;
     //d.sales = parseInt(d.sales);
     d.totalnumber = +d.totalnumber;
-
+d.rank = +d.rank;
   });
 
   // Scale the range of the data in the domains
-  x.domain(data.map(function(d) { return d.salesperson; }));
+  x.domain(data.map(function(d) { return d.man; }));
+  xwoman.domain(data.map(function(d) { return d.woman; }));
+
+  console.log(data.map(function(d) { return d.woman; }));
+  //console.trace();
   y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
   // append the rectangles for the bar chart
@@ -72,7 +84,7 @@ d.sales=parseInt(d.sales,10);
       .data(data)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("x", function(d) { return x(d.salesperson); })
+      .attr("x", function(d) { return x(d.man); })
       .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.sales); })
       .attr("height", function(d) { return height - y(d.sales); });
@@ -82,13 +94,13 @@ svg.selectAll(".bar2")
       .data(data)
     .enter().append("rect")
       .attr("class", "bar2")
-      .attr("x", function(d) { return x(d.salesperson); })
+      .attr("x", function(d) { return x(d.man) -10; })
       .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.sales2); })
       .attr("height", function(d) { return height - y(d.sales2); });
 
 
-  // add the x Axis
+  // add the x Axis for men
   svg.append("g")
       .attr("class", "axisSteelBlue")
       .attr("transform", "translate(0," + height + ")")
@@ -96,17 +108,39 @@ svg.selectAll(".bar2")
       //text angle
       .selectAll("text")
       .style("text-anchor", "end")
-      
-      .attr("dx", "-.8em")
-      .attr("dy", ".15em")
-      .attr("transform", "rotate(-65)")
-      
+      .attr("dx", "-.3em")
+      .attr("dy", "-.3em")
+      .attr("transform", "rotate(-50)")
+
+// add another x axis for women
+  svg.append("g")
+      .attr("class", "axisSteelGreen")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xwoman))
+      //text angle
+      .selectAll("text")
+      .attr("text", function(d) { return x(d.woman); })
+      .style("text-anchor", "end")
+      .attr("dx", "-1em")
+      .attr("dy", "-1em")
+      .attr("transform", "rotate(-50)") 
+
+   // add another x axis   
+// var xAxis2 = d3.svg.axis()
+//     .scale(x)
+//     .orient("top");
+//  svg.append("g")
+//       .attr("class", "x axis")
+//       .attr("transform", "translate(0, 0)")
+//       .call(xAxis2);  
+  
 
   // add the y Axis
   svg.append("g")
       .call(d3.axisLeft(y));
 
 });
+
 
 </script>
 </body>
