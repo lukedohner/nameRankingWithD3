@@ -4,14 +4,79 @@
 <style> /* set the CSS */
 
 .bar { fill: steelblue; }
-.bar2 { fill: rgba(98, 185, 102, 0.5); }
+.bar2 { fill: rgba(98, 185, 102, 0.7); }
+/*men names*/
 .axisSteelBlue text{
 fill: steelblue;
+font-size: 0.9em;
 }
+.tick line{
+  /*visibility:hidden;*/
+  opacity: 0.1;
+/*fill: steelblue;*/
+}
+    
+.titleAxis{
+  font-family: sans-serif;
+}
+/*women names*/
 .axisSteelGreen text{
-fill: rgba(98, 185, 102, 0.5);
+fill: rgba(98, 185, 102, 0.7);
 font-weight: 700;
+font-size: 0.9em;
 }
+.grid line {
+stroke: lightgrey;
+stroke-opacity: 0.1;
+shape-rendering: crispEdges;
+}
+.grid path {
+stroke-width: 0;
+}
+h3, p{
+    text-align: left;
+    margin-left: 20%;
+    margin-bottom: 20%;
+    display: block;
+    position: absolute;
+    top: 6%;
+    width: 40%;   
+}
+p{
+top: 10%;
+}
+
+/* ----------- iPhone 5 and 5S ----------- */
+/* Portrait and Landscape */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 568px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+ h3, p{
+    margin-left: 50%;  
+    top: 5%;    
+}
+p{
+    margin-left: 50%;  
+    top: 10%;    
+}
+}
+/* Portrait */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 568px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: portrait) {
+ h3, p{
+    top: 3%; 
+    margin-left: 50%;      
+}
+p{
+    margin-left: 50%;  
+    top: 5%;    
+}
+}
+
 </style>
 <body>
 	
@@ -20,8 +85,8 @@ font-weight: 700;
 <script>
 
 // set the dimensions and margins of the graph
-var margin = {top: 20, right: 20, bottom: 60, left: 60},
-    width = 2000 - margin.left - margin.right,
+var margin = {top: 20, right: 40, bottom: 60, left: 60},
+    width = 2750 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 // set the ranges
@@ -33,6 +98,9 @@ var xwoman = d3.scaleBand()
           .padding(0.5); //0.1, or 1/10th of the width of the space available for each band.
 var y = d3.scaleLinear()
           .range([height, 0]);
+
+var yright = d3.scaleLinear()
+          .range([height, 0]);          
           
 // append the svg object to the body of the page
 // append a 'group' element to 'svg'
@@ -55,6 +123,16 @@ var svg = d3.select("body").append("svg")
 //   console.log("testing the r " + k);
 //   return r;
 // }
+// gridlines in x axis function
+function make_x_gridlines() {
+return d3.axisBottom(x)
+.ticks(5)
+}
+// gridlines in y axis function
+function make_y_gridlines() {
+return d3.axisLeft(y)
+.ticks(8)
+} 
 // get the data
 d3.csv("data/nameranking.csv", function(error, data) {
   if (error) throw "You got an error bro or sis";
@@ -78,7 +156,7 @@ d.rank = +d.rank;
   console.log(data.map(function(d) { return d.woman; }));
   //console.trace();
   y.domain([0, d3.max(data, function(d) { return d.sales; })]);
-
+yright.domain([0, d3.max(data, function(d) { return d.sales; })]);
   // append the rectangles for the bar chart
   svg.selectAll(".bar")
       .data(data)
@@ -94,7 +172,7 @@ svg.selectAll(".bar2")
       .data(data)
     .enter().append("rect")
       .attr("class", "bar2")
-      .attr("x", function(d) { return x(d.man) -10; })
+      .attr("x", function(d) { return x(d.man) -13; })
       .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.sales2); })
       .attr("height", function(d) { return height - y(d.sales2); });
@@ -105,12 +183,23 @@ svg.selectAll(".bar2")
       .attr("class", "axisSteelBlue")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x))
-      //text angle
+      
+      //text angle men
       .selectAll("text")
       .style("text-anchor", "end")
-      .attr("dx", "-.3em")
-      .attr("dy", "-.3em")
+       .attr("dx", "-.3em")
+       .attr("dy", "-.3em")
+     // .attr("dx", "-3em")
+      //.attr("dy", "-0em")
       .attr("transform", "rotate(-50)")
+     
+// add the Y gridlines
+svg.append("g")
+//.attr("class", "axisSteelBlue")
+.call(make_y_gridlines()
+.tickSize(-width)
+.tickFormat("")
+)
 
 // add another x axis for women
   svg.append("g")
@@ -121,26 +210,51 @@ svg.selectAll(".bar2")
       .selectAll("text")
       .attr("text", function(d) { return x(d.woman); })
       .style("text-anchor", "end")
-      .attr("dx", "-1em")
-      .attr("dy", "-1em")
+       .attr("dx", "-1.4em")
+       .attr("dy", "-1.4em")
+      .attr("class", "axisSteelGreen")
+      // .attr("dx", "-1em")
+      // .attr("dy", "5em")
       .attr("transform", "rotate(-50)") 
-
-   // add another x axis   
-// var xAxis2 = d3.svg.axis()
-//     .scale(x)
-//     .orient("top");
-//  svg.append("g")
-//       .attr("class", "x axis")
-//       .attr("transform", "translate(0, 0)")
-//       .call(xAxis2);  
-  
 
   // add the y Axis
   svg.append("g")
       .call(d3.axisLeft(y));
 
+  // add the right y Axis
+  svg.append("g")
+      .attr("class", "axisRed")
+      .attr("transform", "translate( " + width + ", 0 )")
+      .call(d3.axisLeft(yright));  
+
+// text label for the x axis
+svg.append("text")
+// .attr("x", 480 )
+// .attr("y", 475 )
+.attr("transform",
+"translate(" + (width/4) + " ," +
+(height + margin.top + 35) + ")")
+.style("text-anchor", "middle")
+.attr("class", "titleAxis")
+.text("100 most popular given names. 1917-2016.");
 });
+// text label for the y axis
+svg.append("text")
+//.attr("transform", "rotate(-80)")
+.attr("y", 50 - margin.left)
+.attr("x",-35 - (height / height))
+.attr("dy", "1em")
+.style("text-anchor", "middle")
+.attr("class", "titleAxis")
+.text("Births");
 
 
 </script>
+<div class = "explaner"><h3>
+  Top Names Over the Last 100 Years</h3>
+<br><p>
+The 100 most popular given names for male and female babies born the years, 1917-2016. Showing the name and the number of issued Social Security Cards in the name. These names were taken from 172,891,221 male births and 168,898,516 female births.
+<br>
+Popular names listed below may not be consistently popular in every year. For example: Mary, ranked as the most popular female name over the last 100 years, has been ranked as low as number 127. Similarly, the most popular male name: James, ranked as low as 19. Data source: Social Security Admin., build with D3.js.</p>
+  </div>
 </body>
